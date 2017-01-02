@@ -5,19 +5,35 @@
  */
 package Test;
 
-import FilesHandlers.WordHandler;
+import Sim.SimCommunicator;
+
+import javax.smartcardio.*;
 
 /**
- *
  * @author arikzil
  */
 public class Tester {
 
     public static void main(String[] args) throws Exception {
-        WordHandler wordHandler = new WordHandler("/home/arikzil/Desktop/Projects/work/dd/");
-        String document = "resume_ariel_heb.docx";
-        
-        wordHandler.changeLine(document, 4, "dfdsddddddddddddddddddddddddddddddddddddddddddddddddddddddddddsf");
+        SimCommunicator sim = new SimCommunicator();
+        CardTerminal terminal = sim.getTerminal(0);
+        Card card = terminal.connect("*");
+        System.out.println("card: " + card);
+        CardChannel channel = card.getBasicChannel();
+
+
+        // Send Select Applet command
+        System.out.println("{select EF}");
+        byte[] fid = {0x3a, (byte) 0xff};
+        //ResponseAPDU answers = channel.transmit(new CommandAPDU(0x00, 0xa4, 0x00, 0x00, fid));
+        ResponseAPDU answers = channel.transmit(new CommandAPDU(sim.getAPDU("SELECT_MF")));
+        //ResponseAPDU answers = channel.transmit(new CommandAPDU(0x00, 0xCA, 0x33, 0x00));
+        //ResponseAPDU answers = channel.transmit(new CommandAPDU(0x00, 0xa4, 0x00, 0x00, fid));
+        System.out.println("answer2: " + answers.toString());
+
+        // Disconnect the card
+        card.disconnect(false);
+
 
     }
 }
